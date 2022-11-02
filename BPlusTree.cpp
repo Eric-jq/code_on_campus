@@ -26,6 +26,8 @@ BPlusTreeNode* BPlusTree::getBPlusTreeNode(){
 BPlusTreeNode *BPlusTree::IntialBPlusTree(){
 
             BPlusTreeNode * BNode = getBPlusTreeNode();
+            BNode->leftBrother = BNode;
+            BNode->rightBrother = BNode;
             
             return BNode;
 }
@@ -55,7 +57,7 @@ bool BPlusTree::splitNodes(BPlusTreeNode *nodeSon, BPlusTreeNode *nodeFather, in
             }
             else{
                         for(int i=0;i<=BPlusTreeM ;i++){
-                        newNodeSon->infoNodes[i] = nodeSon->infoNodes[i+BPlusTreeM];
+                                    newNodeSon->infoNodes[i] = nodeSon->infoNodes[i+BPlusTreeM];
                         }
                         newNodeSon->rightBrother = nodeSon->rightBrother;
                         newNodeSon->rightBrother->leftBrother = newNodeSon;
@@ -69,11 +71,12 @@ bool BPlusTree::splitNodes(BPlusTreeNode *nodeSon, BPlusTreeNode *nodeFather, in
                         nodeFather->infoNodes[i] = nodeFather->infoNodes[i-1];
             }
             nodeFather->infoNodes[cur] = newNodeSon->infoNodes[0];
-            for(int i=nodeFather->keyCount;i>=cur;i--){
+            for(int i=nodeFather->keyCount;i>cur;i--){
                         nodeFather->children[i+1] = nodeFather->children[i];
             }
             nodeFather->children[cur+1] = newNodeSon;
             nodeFather->keyCount++;
+            return true;
 }
 
 bool BPlusTree::insertNodeNotRoot(BPlusTreeNode *node, InfoNode newInfoNode){
@@ -91,18 +94,18 @@ bool BPlusTree::insertNodeNotRoot(BPlusTreeNode *node, InfoNode newInfoNode){
                        return true;
             }
             else{
-                        int cur = node->keyCount-1;
-                        for(;node->infoNodes[cur].val > newInfoNode.val && cur>=0;cur--){}
+                        int cur = node->keyCount;
+                        for(;node->infoNodes[cur-1].val > newInfoNode.val && cur>=1;cur--){}
                         if(node->children[cur]->keyCount == 2* BPlusTreeM+1){ // full, then split
-                                    bool flag = splitNodes(node,node->children[cur+1],cur+1);
+                                    bool flag = splitNodes(node->children[cur],node,cur);
                                     if(!flag){
                                                 return false;
                                     }
-                                    if(node->infoNodes[cur+1].val<newInfoNode.val ){ // right child of the new node
+                                    if(node->infoNodes[cur].val<newInfoNode.val ){ // right child of the new node
                                                 cur++;
                                     }
                        }
-                      return  insertNodeNotRoot(node->children[cur+1], newInfoNode);
+                      return  insertNodeNotRoot(node->children[cur], newInfoNode);
             }
 
 }
@@ -118,7 +121,7 @@ bool BPlusTree::insertNodeNotRoot(BPlusTreeNode *node, InfoNode newInfoNode){
                                     std::cout<<"Fail to generate a new root!"<<std::endl;
                         }                                                                                                                                                                                                                                                                                                                                                                         
                         newRoot->IsLeaf = false;
-                        newRoot->keyCount = 1;
+                        newRoot->keyCount = 0;
                         newRoot->children[0] = root;
                         if(!splitNodes(root, newRoot,0)){
                                     std::cout<<"Fail to Split the root!"<<std::endl;
@@ -130,9 +133,13 @@ bool BPlusTree::insertNodeNotRoot(BPlusTreeNode *node, InfoNode newInfoNode){
                         }
                         return newRoot;
             } 
-            if(!insertNodeNotRoot(root,newInfoNode)){
-                        std::cout<<"Fail to Insert the root!"<<std::endl;
-            }     
+            else{
+                       if(!insertNodeNotRoot(root,newInfoNode)){
+                                    std::cout<<"Fail to Insert the root!"<<std::endl;
+                         }    
+            }
+              
+            return root;
  }
 
 //  void BPlusTree::findSingleValue(BPlusTreeNode* root, int64_t val,std::vector<int64_t>&ans){
