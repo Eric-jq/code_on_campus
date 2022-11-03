@@ -23,13 +23,35 @@ BPlusTreeNode* BPlusTree::getBPlusTreeNode(){
             return Bnode;
  }
 
-BPlusTreeNode *BPlusTree::IntialBPlusTree(){
+// BPlusTreeNode *BPlusTree::IntialBPlusTree(){
 
-            BPlusTreeNode * BNode = getBPlusTreeNode();
-            BNode->leftBrother = BNode;
-            BNode->rightBrother = BNode;
+//             BPlusTreeNode * BNode = getBPlusTreeNode();
+//             BNode->leftBrother = BNode;
+//             BNode->rightBrother = BNode;
             
-            return BNode;
+//             return BNode;
+// }
+
+ bool BPlusTree::VerifyColNum(int &colNum){
+
+            if(colNum<1 || colNum>100){
+                        std::cout<<"Error: the colNum is out of range"<<std::endl;
+                        return false;
+            }
+            colNum--;
+            if(roots[colNum] == nullptr){
+                        std::cout<<"Error: The root is empty"<<std::endl;
+                        return false;
+            }
+            return true;
+}
+
+BPlusTree::BPlusTree(){
+            for(int i=0;i<MaxAttributeNumber;i++){
+                        roots[i] = getBPlusTreeNode();
+                        roots[i]->leftBrother = roots[i];
+                        roots[i]->rightBrother = roots[i];
+            }
 }
 
 bool BPlusTree::splitNodes(BPlusTreeNode *nodeSon, BPlusTreeNode *nodeFather, int cur){
@@ -110,20 +132,20 @@ bool BPlusTree::insertNodeNotRoot(BPlusTreeNode *node, InfoNode newInfoNode){
 
 }
 
- BPlusTreeNode* BPlusTree:: insertNode(BPlusTreeNode *root, InfoNode newInfoNode){
-            if(root == nullptr){
-                        std::cout<<"Fail to Insert, since the Root is empty!"<<std::endl;
+ BPlusTreeNode* BPlusTree:: insertNode(int colNum, InfoNode newInfoNode){
+            if(!VerifyColNum(colNum)){
+                        std::cout<<"Fail to generate a new root!"<<std::endl;
                         return nullptr;
             }
-            if(root->keyCount == 2*BPlusTreeM+1){
+            if(roots[colNum]->keyCount == 2*BPlusTreeM+1){
                         BPlusTreeNode *newRoot = getBPlusTreeNode();
                         if(newRoot == nullptr){
                                     std::cout<<"Fail to generate a new root!"<<std::endl;
                         }                                                                                                                                                                                                                                                                                                                                                                         
                         newRoot->IsLeaf = false;
                         newRoot->keyCount = 0;
-                        newRoot->children[0] = root;
-                        if(!splitNodes(root, newRoot,0)){
+                        newRoot->children[0] = roots[colNum];
+                        if(!splitNodes(roots[colNum], newRoot,0)){
                                     std::cout<<"Fail to Split the root!"<<std::endl;
                                     return nullptr;
                         }
@@ -131,52 +153,77 @@ bool BPlusTree::insertNodeNotRoot(BPlusTreeNode *node, InfoNode newInfoNode){
                                     std::cout<<"Fail to Insert the root!"<<std::endl;
                                     return nullptr;
                         }
-                        return newRoot;
+                        roots[colNum] = newRoot;
+                        return roots[colNum];
             } 
             else{
-                       if(!insertNodeNotRoot(root,newInfoNode)){
+                       if(!insertNodeNotRoot(roots[colNum],newInfoNode)){
                                     std::cout<<"Fail to Insert the root!"<<std::endl;
                          }    
             }
               
-            return root;
+            return roots[colNum];
  }
+void BPlusTree:: displayBPlusTree(int colNum){
+            if(!VerifyColNum(colNum)){
+                         std:: cout<<"Error: Fail to display"<<std::endl;
+                         return;
+            }
+           displayRecursive(roots[colNum]);
+         
+}
+void BPlusTree::displayRecursive(BPlusTreeNode *root){
+            if(root == nullptr){
+                        std:: cout<<"Fail to display, the node is empty!"<<std::endl;
+            }
+            std:: cout<<"count: "<<root->keyCount<<std::endl;
+            if(!root->IsLeaf){
+                        for(int i=0;i<=root->keyCount;i++){
+                                    displayRecursive(root->children[i]);
+            }
+            }else{
+                         for(int i=0;i<root->keyCount;i++){
+                                      std:: cout<<root->infoNodes[i].val<<std::endl;
+                         }
+            }
+}
 
-//  void BPlusTree::findSingleValue(BPlusTreeNode* root, int64_t val,std::vector<int64_t>&ans){
-//             if(root == nullptr){
-//                          std::cout<<"Fail yo find the value: the root is NULL!"<<std::endl;
-//                          return ;
-//             }
-//             // find the leaf node
-//             BPlusTreeNode* nodeTemp = root;
+bool BPlusTree::findSingleValue(int colNum, int64_t val,std::vector<int64_t>&ans){
+             if(!VerifyColNum(colNum)){
+                        std:: cout<<"Error: Fail to find single value"<<std::endl;
+                        return false;
+            }
+            // find the leaf node
+            BPlusTreeNode* nodeTemp = roots[colNum];
            
-//             while(!nodeTemp->IsLeaf){
-//                         int cur =nodeTemp->keyCount-1;
-//                         while(cur>=0 && nodeTemp->infoNodes[cur].val>=val){
-//                                     cur--;
-//                         }
-//                         nodeTemp = nodeTemp->children[cur+1];
-//             }
-//            ans.reserve(maxFindNum+1);
-//            while(nodeTemp!=nullptr){
-//                        int count = 0;
-//                         for(int cur =0;cur<nodeTemp->keyCount&& count<maxFindNum;cur++){
-//                                     std::cout<<"for test count: "<<count<<std::endl;
-//                                     if(nodeTemp->infoNodes[cur].val == val){
-//                                                 ans.emplace_back(nodeTemp->infoNodes[cur].lineNum);
-//                                                 count++;                                        
-//                                     }
-//                                     else if(val < nodeTemp->infoNodes[cur].val){
-//                                                 return ;
-//                                     }
-//                         }
-//                         if(count == maxFindNum){
-//                                     std::cout<<"The number of the result reaches the maximum! Only maxFindNum pieces are returned!"<<std::endl;
-//                                     return ;
-//                         }
-//                         nodeTemp = nodeTemp->leftBrother;
-//            }
-//  }
+            while(!nodeTemp->IsLeaf){
+                        int cur =nodeTemp->keyCount-1;
+                        while(cur>=0 && nodeTemp->infoNodes[cur].val>=val){
+                                    cur--;
+                        }
+                        nodeTemp = nodeTemp->children[cur+1];
+            }
+           ans.reserve(maxFindNum+1);
+           while(nodeTemp!=nullptr){
+                       int count = 0;
+                        for(int cur =0;cur<nodeTemp->keyCount&& count<maxFindNum;cur++){
+                                    std::cout<<"for test count: "<<count<<std::endl;
+                                    if(nodeTemp->infoNodes[cur].val == val){
+                                                ans.emplace_back(nodeTemp->infoNodes[cur].lineNum);
+                                                count++;                                        
+                                    }
+                                    else if(val < nodeTemp->infoNodes[cur].val){
+                                                return true ;
+                                    }
+                        }
+                        if(count == maxFindNum){
+                                    std::cout<<"The number of the result reaches the maximum! Only maxFindNum pieces are returned!"<<std::endl;
+                                    return true;
+                        }
+                        nodeTemp = nodeTemp->leftBrother;
+           }
+            return true;
+ }
 
 // void BPlusTree::findScopeValue(BPlusTreeNode* root, int64_t valMin, int64_t valMax, std:: vector<int64_t>&ans){
 //             if(root==nullptr){

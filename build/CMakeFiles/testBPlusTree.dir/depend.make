@@ -4,8 +4,10 @@
 CMakeFiles/testBPlusTree.dir/BPlusTree.cpp.o: ../BPlusTree.cpp
 CMakeFiles/testBPlusTree.dir/BPlusTree.cpp.o: ../BPlusTree.h
 CMakeFiles/testBPlusTree.dir/BPlusTree.cpp.o: ../node.h
+CMakeFiles/testBPlusTree.dir/BPlusTree.cpp.o: ../piece.h
 
 CMakeFiles/testBPlusTree.dir/testBPlusTree.cpp.o: ../BPlusTree.h
 CMakeFiles/testBPlusTree.dir/testBPlusTree.cpp.o: ../node.h
+CMakeFiles/testBPlusTree.dir/testBPlusTree.cpp.o: ../piece.h
 CMakeFiles/testBPlusTree.dir/testBPlusTree.cpp.o: ../testBPlusTree.cpp
 
