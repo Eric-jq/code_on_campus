@@ -14,8 +14,16 @@ class Sheet{
             public:
                         Sheet();
                         bool SetRawSheet();
-                        Piece GetNewSheet(); 
+                        Piece GetNewPiece(); 
                         bool AppendSheet(Piece piece);
+                        static Sheet * getSheet();
+                        bool BuildBplusTree(int colNum);
+                        bool VerifyBPlusTreeFile(int colNum);
+                        bool InsertPiece();
+                        void DisplayPiece(Piece piece);
+                        bool UpdateBPlusTree(int colNum);
+                        void FindPieces(int64_t targetVal,int colNum);
+                        void FindPieces(int64_t minVal, int64_t maxVal, int colNum);
             private:
                         int mFp;
                         Piece piecesArray[maxLineNum];

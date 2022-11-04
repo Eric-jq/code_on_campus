@@ -6,6 +6,7 @@ Sheet::Sheet(){
             if(mFp == -1){
                         std::cout<<"Fail to Open the file"<<std::endl;
             }
+            mBplusTree = new BPlusTree();
             struct stat file_stat;
             int ret = fstat(mFp, &file_stat);
             if(ret == -1){
@@ -16,7 +17,8 @@ Sheet::Sheet(){
                         lineNum = 0;
                         if(!SetRawSheet()){
                                      //std::cout<<"Error: Fail to get the size of the sheetFile!"<<std::endl;
-                                     close(mFp);
+                                    mBplusTree->BuildBPlussTree(piecesArray, lineNum);
+                                    close(mFp);
                         }
             }
             else{  // the sheet file exits: access the data
@@ -28,8 +30,9 @@ Sheet::Sheet(){
                                     std::cout<<"Error: Fail to read the sheetFile!"<<std::endl;
                         }
             }
+            mBplusTree->InitializeBPlussTree();
             srand((unsigned)time(0));  // this is for rand
-            mBplusTree = new BPlusTree();
+            
             
 }
  
@@ -37,24 +40,24 @@ Sheet::Sheet(){
 bool Sheet::SetRawSheet(){
             Piece piece;
             for(int i=0;i<rawLineNUm;i++){
-                        piece = GetNewSheet();
+                        piece = GetNewPiece();
                         if(AppendSheet(piece)){
                                      std::cout<<"Error: Fail to Set the Raw sheet!"<<std::endl;
                                      return false;
                         }
             }
-
 }
 
 bool Sheet::AppendSheet(Piece piece){
             if(write(mFp, &piece,PieceSize) == -1){
-                         std::cout<<"Error: fail to Append a New Piece!"<<std::endl;
+                         std::cout<<"Error: fail to append a new piece!"<<std::endl;
                          return false;
             }
+            mBplusTree->UpdateBPlusTree(piece);
             return true;
 }
 
-Piece Sheet::GetNewSheet(){
+Piece Sheet::GetNewPiece(){
             Piece piece;
             piece.lineNum = lineNum;
             for(int i=0;i<MaxAttributeNumber;i++){
@@ -66,4 +69,58 @@ Piece Sheet::GetNewSheet(){
             }
             piecesArray[lineNum] = piece;
             return piece;
+}
+
+Sheet *Sheet:: getSheet(){
+            if(mSheet != nullptr){
+                        return mSheet; // to assure there is only one instance
+            }
+            mSheet = new Sheet();
+            return mSheet;
+}
+
+
+void Sheet::DisplayPiece(Piece piece){
+            std::cout<<"LINENUM:"<<lineNum<<std::endl;
+            std::cout<<"ATTRIBUTES:"<<lineNum<<std::endl;
+             for(int i=0;i<MaxAttributeNumber;i++){
+                        std::cout<<piece.arrtibute[i]<<" ";
+             }
+}
+
+
+bool Sheet::InsertPiece(){
+            Piece newPiece = GetNewPiece();
+            if(!AppendSheet(newPiece)){
+                         std::cout<<"Error: fail to insert piece"<<std::endl;
+                         return false;
+            }
+            std::cout<<"******************************************"<<std::endl;
+            std::cout<<"HERE IS THE NEW PIECE:"<<std::endl;
+            DisplayPiece(newPiece);
+            std::cout<<"******************************************"<<std::endl;
+            return true;
+}
+
+void Sheet::FindPieces(int64_t targetVal,int colNum){
+            std::vector<int64_t> ans;
+            mBplusTree->findSingleValue(targetVal,colNum,ans);
+            std::cout<<"******************************************"<<std::endl;
+             std::cout<<"HERE ARE THE FINDINGS:"<<std::endl;
+            for(int i=0;i<ans.size();i++){
+                        DisplayPiece(piecesArray[ans[i]]);
+            }
+            std::cout<<"******************************************"<<std::endl;
+}
+
+void Sheet::FindPieces(int64_t minVal, int64_t maxVal, int colNum){
+             std::vector<int64_t> ans;
+            mBplusTree->findScopeValue(minVal,maxVal,colNum,ans);
+            std::cout<<"******************************************"<<std::endl;
+             std::cout<<"HERE ARE THE FINDINGS:"<<std::endl;
+            for(int i=0;i<ans.size();i++){
+                        DisplayPiece(piecesArray[ans[i]]);
+            }
+            std::cout<<"******************************************"<<std::endl;
+
 }
