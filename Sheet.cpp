@@ -1,8 +1,18 @@
-#include "sheet.h"
+#pragma once
+#include "Sheet.h"
 #include "BPlusTree.h"
 
 Sheet::Sheet(){
-            mFp = open(SheetFilePath, O_RDWR | O_CREAT | O_APPEND, S_IRUSR | S_IWUSR);
+            std::string dirPath = SheetDataDir;
+            if(!access(dirPath.c_str(),F_OK) == -1){ // need create a new one
+                        int isCreateDir = mkdir(dirPath.c_str(), S_IRUSR | S_IWUSR | S_IXUSR | S_IRWXG | S_IRWXO);
+                        if(isCreateDir == -1){
+                                    std::cout<<"Error: fail to store the BPlusTree since DirCreation failed!"<<std::endl;
+                                    std::cout<<"errno: "<< errno<<": "<<strerror(errno)<<std::endl;
+                        }
+            }
+            std::string filePath = SheetDataPath;
+            mFp = open(filePath.c_str(), O_RDWR | O_CREAT | O_APPEND, S_IRUSR | S_IWUSR);
             if(mFp == -1){
                         std::cout<<"Fail to Open the file"<<std::endl;
             }
@@ -15,11 +25,15 @@ Sheet::Sheet(){
             }
             if(file_stat.st_size == 0){ // Empty file: requres set sheet
                         lineNum = 0;
-                        if(!SetRawSheet()){
-                                     //std::cout<<"Error: Fail to get the size of the sheetFile!"<<std::endl;
+                        if(SetRawSheet()){
                                     mBplusTree->BuildBPlussTree(piecesArray, lineNum);
-                                    close(mFp);
+                                   
                         }
+                        else{
+                                    std::cout<<"Error: Fail to set the raw sheet!"<<std::endl;
+                                    close(mFp);
+                        } 
+                       
             }
             else{  // the sheet file exits: access the data
                         lineNum = file_stat.st_size/PieceSize;
@@ -29,11 +43,16 @@ Sheet::Sheet(){
                         if(read(mFp,piecesArray,file_stat.st_size) == -1){
                                     std::cout<<"Error: Fail to read the sheetFile!"<<std::endl;
                         }
+                        if(mBplusTree->InitializeBPlussTree()){
+                                     std::cout<<"Error: Fail to create a new sheet!"<<std::endl;
+                        }
             }
-            mBplusTree->InitializeBPlussTree();
-            srand((unsigned)time(0));  // this is for rand
-            
-            
+            srand((unsigned)time(0));  // this is for rand   
+            if(pthread_mutex_init(mmutexFIndInsertSheet, NULL)!=0){
+                        std::cout<<"Error: Fail to init mutexFIndInsertSheet!"<<std::endl;
+                        delete mmutexFIndInsertSheet;
+                        close(mFp);
+            }
 }
  
 
@@ -71,7 +90,7 @@ Piece Sheet::GetNewPiece(){
             return piece;
 }
 
-Sheet *Sheet:: getSheet(){
+Sheet *Sheet:: GetSheet(){
             if(mSheet != nullptr){
                         return mSheet; // to assure there is only one instance
             }
@@ -90,6 +109,10 @@ void Sheet::DisplayPiece(Piece piece){
 
 
 bool Sheet::InsertPiece(){
+            // if (pthread_mutex_lock(m_pMutexForVisitTable) != 0){
+	// 	cout<<"加访问互斥锁失败。"<<endl;
+	// 	return;
+	// }
             Piece newPiece = GetNewPiece();
             if(!AppendSheet(newPiece)){
                          std::cout<<"Error: fail to insert piece"<<std::endl;

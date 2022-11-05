@@ -8,7 +8,8 @@
 #include <sys/stat.h>
 #define rawLineNUm 1000
 #define maxLineNum 1000000
-#define SheetFilePath "***"
+#define SheetDataDir "../SheetDataDir"
+#define SheetDataPath "../SheetFile/SheetData"
 
 class Sheet{
             public:
@@ -16,9 +17,9 @@ class Sheet{
                         bool SetRawSheet();
                         Piece GetNewPiece(); 
                         bool AppendSheet(Piece piece);
-                        static Sheet * getSheet();
+                        static Sheet * GetSheet();
                         bool BuildBplusTree(int colNum);
-                        bool VerifyBPlusTreeFile(int colNum);
+                       // bool VerifyBPlusTreeFile(int colNum);
                         bool InsertPiece();
                         void DisplayPiece(Piece piece);
                         bool UpdateBPlusTree(int colNum);
@@ -30,6 +31,10 @@ class Sheet{
                         int64_t lineNum;
                         BPlusTree *mBplusTree;
                         static Sheet *mSheet; // for the sake of consistence in  threads
+                         pthread_mutex_t *mmutexFIndInsertSheet;
+
+                        static pthread_mutex_t *mmutexGetSheet;
+
 };
 
 
