@@ -22,6 +22,7 @@
 class BPlusTree{
         public:
                         BPlusTree();
+                        ~BPlusTree();
                         bool VerifyColNum(int colNum);
                         //BPlusTreeNode *IntialBPlusTree();
                         BPlusTreeNode *getBPlusTreeNode();

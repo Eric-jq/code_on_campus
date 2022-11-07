@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 3.0)
 
-project(BplusTree)
+project(Sheet)
 
 set(CMAKE_BUILD_TYPE Debug)
 
-add_executable(testBPlusTree testBPlusTree.cpp BPlusTree.cpp)
+include_directories(include)
+
+add_executable(testSheet testSheet.cpp src/BPlusTree.cpp src/Sheet.cpp)

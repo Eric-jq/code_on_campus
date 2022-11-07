@@ -9,11 +9,12 @@
 #define rawLineNUm 1000
 #define maxLineNum 1000000
 #define SheetDataDir "../SheetDataDir"
-#define SheetDataPath "../SheetFile/SheetData"
+#define SheetDataPath "../SheetDataDir/SheetData"
 
 class Sheet{
             public:
                         Sheet();
+                        ~Sheet();
                         bool SetRawSheet();
                         Piece GetNewPiece(); 
                         bool AppendSheet(Piece piece);

@@ -46,13 +46,12 @@ BPlusTreeNode* BPlusTree::getBPlusTreeNode(){
 // }
 
  bool BPlusTree::VerifyColNum(int colNum){
-
             if(colNum<1 || colNum>100){
                         std::cout<<"Error: the colNum is out of range"<<std::endl;
                         return false;
             }
 
-            if(roots[colNum] == nullptr){
+            if(roots[colNum-1] == nullptr){
                         std::cout<<"Error: The root is empty"<<std::endl;
                         return false;
             }
@@ -60,16 +59,17 @@ BPlusTreeNode* BPlusTree::getBPlusTreeNode(){
 }
 
 BPlusTree::BPlusTree(){
-            for(int i=0;i<MaxAttributeNumber;i++){
+            for(int i=0;i<=MaxAttributeNumber;i++){
                         roots[i] = getBPlusTreeNode();
             }
 }
 BPlusTree::~BPlusTree(){
-            for(int i=1;i<MaxAttributeNumber;i++){
+            for(int i=1;i<=MaxAttributeNumber;i++){
                        if(!storeBPlusTree(i)){
                                     std::cout<<"Fatal Error: Fail to store the Tree:!"<<std::endl;
                                     break;
                        }
+                       std::cout<<"~BPlusTree"<<std::endl;
             }
 }
 
@@ -278,7 +278,7 @@ void BPlusTree::displayRecursive(BPlusTreeNode *root){
 }
 
 bool BPlusTree::testBrothers(int colNum){
-            if(!VerifyColNum){
+            if(!VerifyColNum(colNum)){
                          std::cout<<"Error: Fail to testBrothers"<<std::endl;
                          return false;
             }
@@ -467,7 +467,6 @@ bool BPlusTree::storeBPlusTree( int colNum){
             int fp = open(filePath.c_str(),  O_CREAT |O_RDWR, S_IRUSR | S_IWUSR);
             if (fp == -1){
 		std::cout<<"Fail to generate a new file: "<<strerror(errno)<<std::endl;
-                       // std::cout<<"Open error"<<std::endl;
 		 return false;
 	}
            if(!storeBPlusNode(fp, roots[colNum])) ;
@@ -507,8 +506,8 @@ bool BPlusTree::readBPlusNode(int fd, BPlusTreeNode * node){
             }
             colNum--;
             std::string filePath =  filePathStoreBPlusTree + std::to_string(colNum+1);
-            std::ifstream f(filePath.c_str());
-            if(!access(filePath.c_str(),F_OK)==-1 ){
+             std:: cout<<"readPath:"<<filePath<<std::endl;
+            if(access(filePath.c_str(),F_OK)==-1 ){
                         std:: cout<<"Error: The BPlusTreeFile doesn't exist!"<<std::endl;
                         return false;
 
@@ -549,6 +548,7 @@ bool BPlusTree::BuildBPlussTree(Piece piecesArray[],int lineNum){
 }
 
 bool BPlusTree::InitializeBPlussTree(){
+            std::cout<<"Start to initialize the tree!"<<std::endl;
             for(int i=1;i<=MaxAttributeNumber;i++){
                         if(!readBPlusTree(i)){
                                      std::cout<<"Error: Fail to Initialize BPlusTree!"<<std::endl;

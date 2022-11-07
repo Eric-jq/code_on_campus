@@ -4,7 +4,7 @@
 
 Sheet::Sheet(){
             std::string dirPath = SheetDataDir;
-            if(!access(dirPath.c_str(),F_OK) == -1){ // need create a new one
+            if(access(dirPath.c_str(),F_OK) == -1){ // need create a new one
                         int isCreateDir = mkdir(dirPath.c_str(), S_IRUSR | S_IWUSR | S_IXUSR | S_IRWXG | S_IRWXO);
                         if(isCreateDir == -1){
                                     std::cout<<"Error: fail to store the BPlusTree since DirCreation failed!"<<std::endl;
@@ -14,7 +14,7 @@ Sheet::Sheet(){
             std::string filePath = SheetDataPath;
             mFp = open(filePath.c_str(), O_RDWR | O_CREAT | O_APPEND, S_IRUSR | S_IWUSR);
             if(mFp == -1){
-                        std::cout<<"Fail to Open the file"<<std::endl;
+                        std::cout<<"Error: Fail to Open the file"<<std::endl;
             }
             mBplusTree = new BPlusTree();
             struct stat file_stat;
@@ -26,8 +26,7 @@ Sheet::Sheet(){
             if(file_stat.st_size == 0){ // Empty file: requres set sheet
                         lineNum = 0;
                         if(SetRawSheet()){
-                                    mBplusTree->BuildBPlussTree(piecesArray, lineNum);
-                                   
+                                   // mBplusTree->BuildBPlussTree(piecesArray, lineNum);       
                         }
                         else{
                                     std::cout<<"Error: Fail to set the raw sheet!"<<std::endl;
@@ -39,20 +38,23 @@ Sheet::Sheet(){
                         lineNum = file_stat.st_size/PieceSize;
                         if(lseek(mFp, 0, SEEK_SET) == -1){
                                     std::cout<<"Error: Fail to lseek!"<<std::endl;
+                                    close(mFp);
                         }
                         if(read(mFp,piecesArray,file_stat.st_size) == -1){
                                     std::cout<<"Error: Fail to read the sheetFile!"<<std::endl;
+                                    close(mFp);
                         }
-                        if(mBplusTree->InitializeBPlussTree()){
-                                     std::cout<<"Error: Fail to create a new sheet!"<<std::endl;
+                        if(!mBplusTree->InitializeBPlussTree()){
+                                     std::cout<<"Error: Fail to read a new sheet!"<<std::endl;
+                                     close(mFp);
                         }
             }
             srand((unsigned)time(0));  // this is for rand   
-            if(pthread_mutex_init(mmutexFIndInsertSheet, NULL)!=0){
-                        std::cout<<"Error: Fail to init mutexFIndInsertSheet!"<<std::endl;
-                        delete mmutexFIndInsertSheet;
-                        close(mFp);
-            }
+            // if(pthread_mutex_init(mmutexFIndInsertSheet, NULL)!=0){
+            //             std::cout<<"Error: Fail to init mutexFIndInsertSheet!"<<std::endl;
+            //             delete mmutexFIndInsertSheet;
+            //             close(mFp);
+            // }
 }
  
 
@@ -60,11 +62,12 @@ bool Sheet::SetRawSheet(){
             Piece piece;
             for(int i=0;i<rawLineNUm;i++){
                         piece = GetNewPiece();
-                        if(AppendSheet(piece)){
+                        if(!AppendSheet(piece)){
                                      std::cout<<"Error: Fail to Set the Raw sheet!"<<std::endl;
                                      return false;
                         }
             }
+            return true;
 }
 
 bool Sheet::AppendSheet(Piece piece){
@@ -72,7 +75,10 @@ bool Sheet::AppendSheet(Piece piece){
                          std::cout<<"Error: fail to append a new piece!"<<std::endl;
                          return false;
             }
-            mBplusTree->UpdateBPlusTree(piece);
+            if(!mBplusTree->UpdateBPlusTree(piece)){
+                        std::cout<<"Error: fail to append a new piece!"<<std::endl;
+                        return false;
+            }
             return true;
 }
 
@@ -81,13 +87,27 @@ Piece Sheet::GetNewPiece(){
             piece.lineNum = lineNum;
             for(int i=0;i<MaxAttributeNumber;i++){
                         int64_t temp = rand();
-                        if(temp%2){
-                                  piece.arrtibute[i] = temp;
+                        if(temp%2){  // Limit the numers within -999 to 999
+                                  piece.arrtibute[i] = temp%1000;
                         }
-                         piece.arrtibute[i] = 0-temp;
+                         piece.arrtibute[i] = 0-temp%1000;
             }
             piecesArray[lineNum] = piece;
+            lineNum++;
             return piece;
+}
+Sheet *Sheet::mSheet = nullptr;
+
+Sheet::~Sheet(){
+            std::cout<<"~Sheet"<<std::endl;
+            if(mFp){
+                 close(mFp);       
+            }
+            if(mBplusTree!=nullptr){
+                        delete(mBplusTree);
+            }
+            delete[] piecesArray;
+             std::cout<<"~Sheet"<<std::endl;
 }
 
 Sheet *Sheet:: GetSheet(){
