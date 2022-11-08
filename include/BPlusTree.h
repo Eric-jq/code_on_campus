@@ -12,6 +12,7 @@
 #include<unistd.h>
 #include <sys/stat.h> 　
 #include <sys/types.h>
+
 #define maxFindNum 10
 #define StoreBPlusDir  "../BPlusTreeFile"
 #define filePathStoreBPlusTree "../BPlusTreeFile/storeBplusTree_"
@@ -37,7 +38,7 @@ class BPlusTree{
                         bool findScopeValue(int64_t valMin, int64_t valMax, int colNum, std:: vector<int64_t>&ans);
                         bool storeBPlusNode(int fp, BPlusTreeNode* root);
 		bool storeBPlusTree(int colNum);
-                        bool readBPlusNode(int fp,BPlusTreeNode * node);
+                        BPlusTreeNode*readBPlusNode(int fp, BPlusTreeNode *leftLeavenode);
                         bool readBPlusTree(int col);
                         bool BuildBPlussTree(Piece piecesArray[], int lineNum);
                         bool InitializeBPlussTree();

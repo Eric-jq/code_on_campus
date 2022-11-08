@@ -69,8 +69,9 @@ BPlusTree::~BPlusTree(){
                                     std::cout<<"Fatal Error: Fail to store the Tree:!"<<std::endl;
                                     break;
                        }
-                       std::cout<<"~BPlusTree"<<std::endl;
+                       //std::cout<<"~BPlusTree"<<std::endl;
             }
+           // delete []roots;
 }
 
 
@@ -269,10 +270,10 @@ void BPlusTree::displayRecursive(BPlusTreeNode *root){
 
                         for(int i=0;i<=root->keyCount;i++){
                                     displayRecursive(root->children[i]);
-            }
+                         }
             }else{
                          for(int i=0;i<root->keyCount;i++){
-                                      std:: cout<<root->infoNodes[i].val<<std::endl;
+                                    std:: cout<<" **"<<root->infoNodes[i].val<<std::endl;
                          }
             }
 }
@@ -423,12 +424,12 @@ bool BPlusTree::storeBPlusNode(int fp, BPlusTreeNode* node){
                         std::cout<<"Fail to write the node:: The node is empty!"<<std::endl;
                         return false;
             }
-             if (write(fp, node, sizeof(node)) == -1){
+             if (write(fp, node, sizeof(BPlusTreeNode)) == -1){
 		std::cout<<"Fail to write the node"<<std::endl;
 		return false;
 	}
             if(!node->IsLeaf){
-                        for(int i=0;i<node->keyCount;i++){
+                        for(int i=0;i<=node->keyCount;i++){
                                     if(!storeBPlusNode(fp, node->children[i])){
                                                 return false;
                                     }
@@ -448,7 +449,7 @@ bool BPlusTree::storeBPlusTree( int colNum){
                         return false;
             }
             std::string dirPath = StoreBPlusDir;
-            if(!access(dirPath.c_str(),F_OK) == -1){ // need create a new one
+            if(access(dirPath.c_str(),F_OK) == -1){ // need create a new one
                         int isCreateDir = mkdir(dirPath.c_str(), S_IRUSR | S_IWUSR | S_IXUSR | S_IRWXG | S_IRWXO);
                         if(isCreateDir == -1){
                                     std::cout<<"Error: fail to store the BPlusTree since DirCreation failed!"<<std::endl;
@@ -458,45 +459,60 @@ bool BPlusTree::storeBPlusTree( int colNum){
             }
             std::string filePath =  filePathStoreBPlusTree + std::to_string(colNum+1);
 
-            // if(access(filePath.c_str(),F_OK) ){  // the file exists, delete it 
-            //             if(remove(filePath.c_str()) != 0 ){
-            //                         std::cout<<"Fail to remove !"<<std::endl;
-            //                          return false;
-            //             }
-            // }
-            int fp = open(filePath.c_str(),  O_CREAT |O_RDWR, S_IRUSR | S_IWUSR);
+            if(access(filePath.c_str(),F_OK)==0 ){  // the file exists, delete it 
+                        if(remove(filePath.c_str()) == -1 ){
+                                    std::cout<<"Fail to remove !"<<std::endl;
+                                     return false;
+                        }
+            }
+            int fp = open(filePath.c_str(),  O_CREAT |O_RDWR|O_APPEND, S_IRUSR | S_IWUSR);
             if (fp == -1){
 		std::cout<<"Fail to generate a new file: "<<strerror(errno)<<std::endl;
 		 return false;
 	}
-           if(!storeBPlusNode(fp, roots[colNum])) ;
+           if(!storeBPlusNode(fp, roots[colNum])){
+                       std::cout<<"Error: storeBPlusNode Error!"<<std::endl;
+                         return false;
+           }
             if(close(fp) == -1){
                         std::cout<<"Fail to close the  file: "<<strerror(errno)<<std::endl;
                          return false;
             }
+            return true;
 }
 
-bool BPlusTree::readBPlusNode(int fd, BPlusTreeNode * node){
-             if(fd<0){
+BPlusTreeNode*  BPlusTree::readBPlusNode(int fp, BPlusTreeNode *leftLeavenode){
+            BPlusTreeNode* tempNode = getBPlusTreeNode();
+             if(fp<0){
                         std::cout<<"Error: Fail to read the node:fail to open the file!"<<std::endl;
-                        return false;
+                        return nullptr;
             }
-            if(node==nullptr){
-                        std::cout<<"Error: Fail to read the node:the node is empty!"<<std::endl;
-                        return false;
-            }
-            if(read(fd,node,sizeof(node))==-1){
+            if(read(fp,tempNode,sizeof(BPlusTreeNode))==-1){
                         std::cout<<"Fail to read the node: the file is unreadable!"<<std::endl;
+                        return nullptr;
             }
-            if(!node->IsLeaf){
-                        for(int i=0;i<=node->keyCount;i++){
-                                    if(!readBPlusNode(fd, node->children[i])){
-                                                std::cout<<"Fail to read the node: the file is unreadable!"<<std::endl;
-                                                return false;
-                                    }
+           if(!tempNode->IsLeaf){
+                        for(int i=0;i<=tempNode->keyCount;i++){
+                                    tempNode->children[i] = readBPlusNode(fp,leftLeavenode);
                         }
-            }
-            return true;
+                        return tempNode;
+           }
+           else{
+                        if(leftLeavenode == nullptr){
+                                   leftLeavenode = tempNode;
+                       }
+                       else{
+                                   tempNode->leftBrother = leftLeavenode;
+                                   leftLeavenode->rightBrother = tempNode;
+                                   leftLeavenode = tempNode;
+                       }
+                       return tempNode;
+           }
+            // std::cout<<"nodeCount: "<<node->keyCount<<std::endl;
+            // std::cout<<"Read Node display "<<node->keyCount<<std::endl;
+            
+            //  displayRecursive(node);
+           
  }
 
  bool BPlusTree::readBPlusTree(int colNum){
@@ -506,7 +522,7 @@ bool BPlusTree::readBPlusNode(int fd, BPlusTreeNode * node){
             }
             colNum--;
             std::string filePath =  filePathStoreBPlusTree + std::to_string(colNum+1);
-             std:: cout<<"readPath:"<<filePath<<std::endl;
+            // std:: cout<<"readPath:"<<filePath<<std::endl;
             if(access(filePath.c_str(),F_OK)==-1 ){
                         std:: cout<<"Error: The BPlusTreeFile doesn't exist!"<<std::endl;
                         return false;
@@ -517,7 +533,9 @@ bool BPlusTree::readBPlusNode(int fd, BPlusTreeNode * node){
                         std::cout<<"Error: Fail to open the BPlusTreeFile"<<std::endl;
                         return false;
             }
-            if(!readBPlusNode(fp,roots[colNum])){
+            BPlusTreeNode* leftLeaveNode = nullptr;
+            roots[colNum] = readBPlusNode(fp,leftLeaveNode);
+            if(roots[colNum]  == nullptr){
                         std::cout<<"Error: Fail to read the BPlusTreeFile"<<std::endl;
                         return false;
             }

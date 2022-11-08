@@ -56,7 +56,13 @@ Sheet::Sheet(){
             //             close(mFp);
             // }
 }
- 
+
+void Sheet::ShowFirstFewPieces(){
+            std::cout<<"First Few Sheets:"<<std::endl;
+            for(int i =0;i<=3;i++){
+                        DisplayPiece(piecesArray[i]);
+            }
+}
 
 bool Sheet::SetRawSheet(){
             Piece piece;
@@ -90,7 +96,10 @@ Piece Sheet::GetNewPiece(){
                         if(temp%2){  // Limit the numers within -999 to 999
                                   piece.arrtibute[i] = temp%1000;
                         }
-                         piece.arrtibute[i] = 0-temp%1000;
+                        else{
+                                    piece.arrtibute[i] = 0-temp%1000;
+                        }
+                        
             }
             piecesArray[lineNum] = piece;
             lineNum++;
@@ -99,15 +108,16 @@ Piece Sheet::GetNewPiece(){
 Sheet *Sheet::mSheet = nullptr;
 
 Sheet::~Sheet(){
-            std::cout<<"~Sheet"<<std::endl;
+            std::cout<<"Start ~Sheet"<<std::endl;
             if(mFp){
                  close(mFp);       
             }
+            std::cout<<"close(mFp)"<<std::endl;
+            std::cout<<"delete[] piecesArray"<<std::endl;
             if(mBplusTree!=nullptr){
                         delete(mBplusTree);
             }
-            delete[] piecesArray;
-             std::cout<<"~Sheet"<<std::endl;
+             std::cout<<"End ~Sheet"<<std::endl;
 }
 
 Sheet *Sheet:: GetSheet(){
@@ -125,6 +135,7 @@ void Sheet::DisplayPiece(Piece piece){
              for(int i=0;i<MaxAttributeNumber;i++){
                         std::cout<<piece.arrtibute[i]<<" ";
              }
+            std::cout<<std::endl;
 }
 
 
@@ -148,22 +159,34 @@ bool Sheet::InsertPiece(){
 void Sheet::FindPieces(int64_t targetVal,int colNum){
             std::vector<int64_t> ans;
             mBplusTree->findSingleValue(targetVal,colNum,ans);
-            std::cout<<"******************************************"<<std::endl;
-             std::cout<<"HERE ARE THE FINDINGS:"<<std::endl;
-            for(int i=0;i<ans.size();i++){
-                        DisplayPiece(piecesArray[ans[i]]);
+           // std::cout<<"ansSize: "<<ans.size()<<std::endl;
+            if(ans.size()==0){
+                         std::cout<<"There is no data fitting the requirement!"<<std::endl;
+             }
+            else{
+                        std::cout<<"******************************************"<<std::endl;
+                        std::cout<<"HERE ARE THE FINDINGS:"<<std::endl;
+                        for(int i=0;i<ans.size();i++){
+                                    std::cout<<ans[i]<<std::endl;
+                                    DisplayPiece(piecesArray[ans[i]]);
+                                    std::cout<<"******************************************"<<std::endl;
+                         }
             }
-            std::cout<<"******************************************"<<std::endl;
 }
 
 void Sheet::FindPieces(int64_t minVal, int64_t maxVal, int colNum){
              std::vector<int64_t> ans;
             mBplusTree->findScopeValue(minVal,maxVal,colNum,ans);
-            std::cout<<"******************************************"<<std::endl;
-             std::cout<<"HERE ARE THE FINDINGS:"<<std::endl;
-            for(int i=0;i<ans.size();i++){
-                        DisplayPiece(piecesArray[ans[i]]);
+            if(ans.size()==0){
+                         std::cout<<"There is no data fitting the requirement!"<<std::endl;
+             }
+             else{
+                        std::cout<<"******************************************"<<std::endl;
+                        std::cout<<"HERE ARE THE FINDINGS:"<<std::endl;
+                        for(int i=0;i<ans.size();i++){
+                                    std::cout<<ans[i]<<std::endl;
+                                    DisplayPiece(piecesArray[ans[i]]);
+                        }
+                        std::cout<<"******************************************"<<std::endl;
             }
-            std::cout<<"******************************************"<<std::endl;
-
 }
