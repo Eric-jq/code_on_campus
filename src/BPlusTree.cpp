@@ -1,6 +1,21 @@
 #pragma once
 #include "BPlusTree.h"
 
+
+BPlusTree::BPlusTree(){
+            for(int i=0;i<=MaxAttributeNumber;i++){
+                        roots[i] = getBPlusTreeNode();
+            }
+}
+BPlusTree::~BPlusTree(){
+            for(int i=1;i<=MaxAttributeNumber;i++){
+                       if(!storeBPlusTree(i)){
+                                    std::cout<<"Fatal Error: Fail to store the Tree:!"<<std::endl;
+                                    break;
+                       }
+            }
+}
+
 BPlusTreeNode* BPlusTree::getBPlusTreeNode(){
             BPlusTreeNode *Bnode =  (BPlusTreeNode *)malloc(sizeof(BPlusTreeNode));
             if(Bnode == nullptr){
@@ -58,23 +73,6 @@ BPlusTreeNode* BPlusTree::getBPlusTreeNode(){
             return true;
 }
 
-BPlusTree::BPlusTree(){
-            for(int i=0;i<=MaxAttributeNumber;i++){
-                        roots[i] = getBPlusTreeNode();
-            }
-}
-BPlusTree::~BPlusTree(){
-            for(int i=1;i<=MaxAttributeNumber;i++){
-                       if(!storeBPlusTree(i)){
-                                    std::cout<<"Fatal Error: Fail to store the Tree:!"<<std::endl;
-                                    break;
-                       }
-                       //std::cout<<"~BPlusTree"<<std::endl;
-            }
-           // delete []roots;
-}
-
-
   bool BPlusTree:: GenerateLeaveBrother(BPlusTreeNode * originalNode, BPlusTreeNode *newNode){
             if(originalNode == nullptr){
                         std::cout<<"Error:  Fail to generate brothers since the originalNode is NULL!"<<std::endl;
@@ -123,11 +121,6 @@ bool BPlusTree::splitNodes(BPlusTreeNode *nodeSon, BPlusTreeNode *nodeFather, in
                         for(int i=0;i<=BPlusTreeM ;i++){
                                     newNodeSon->infoNodes[i] = nodeSon->infoNodes[i+BPlusTreeM];
                         }
-                        //if(nodeSon->leftBrother == nullptr && nodeSon->leftBrother)
-                        // newNodeSon->rightBrother = nodeSon->rightBrother;
-                        // newNodeSon->rightBrother->leftBrother = newNodeSon;
-                        // newNodeSon->leftBrother = nodeSon;
-                        // nodeSon->rightBrother = newNodeSon;
                         if(!GenerateLeaveBrother(nodeSon,newNodeSon)){
                                      std::cout<<"Error: fail to split nodes!"<<std::endl;
                                     return false;
@@ -170,7 +163,7 @@ bool BPlusTree::insertNodeNotRoot(BPlusTreeNode *node, InfoNode newInfoNode){
                                     if(!flag){
                                                 return false;
                                     }
-                                    if(node->infoNodes[cur].val<newInfoNode.val ){ // right child of the new node
+                                    if(node->infoNodes[cur].val<newInfoNode.val){ // right child of the new node
                                                 cur++;
                                     }
                        }
@@ -279,20 +272,28 @@ void BPlusTree::displayRecursive(BPlusTreeNode *root){
 }
 
 bool BPlusTree::testBrothers(int colNum){
+
             if(!VerifyColNum(colNum)){
                          std::cout<<"Error: Fail to testBrothers"<<std::endl;
                          return false;
             }
             colNum--;
             BPlusTreeNode * nodeLeave = roots[colNum];
+            if(nodeLeave == nullptr){
+                         std::cout<<"Error: Fail to testBrothers,nodeLeave is empty!"<<std::endl;
+                        return false;
+            }
             while(!nodeLeave->IsLeaf){
                         nodeLeave = nodeLeave->children[0];
             }
+            
             testBothersRecursive(nodeLeave);
+           std:: cout<<std::endl;
             return true;
 }
 
 bool BPlusTree::testBothersRecursive(BPlusTreeNode * nodeLeave){
+           
             if(nodeLeave == nullptr){
                          std::cout<<"Error: Fail to test BothersRevursive"<<std::endl;
                          return false;
@@ -314,7 +315,7 @@ bool BPlusTree::findSingleValue(int64_t val,int colNum, std::vector<int64_t>&ans
             // find the leaf node
             ans.reserve(maxFindNum+1);
             BPlusTreeNode* nodeTemp = roots[colNum];
-           
+           std::cout<<"BPlusTreeNode* nodeTemp = roots[colNum];"<<std::endl;
             while(!nodeTemp->IsLeaf){
                         int cur =nodeTemp->keyCount-1;
                         while(cur>=0 && nodeTemp->infoNodes[cur].val>=val){
@@ -322,6 +323,7 @@ bool BPlusTree::findSingleValue(int64_t val,int colNum, std::vector<int64_t>&ans
                         }
                         nodeTemp = nodeTemp->children[cur+1];
             }
+            std::cout<<"nodeTemSIzei: "<<nodeTemp->keyCount<<std::endl;
            while(nodeTemp!=nullptr){
                        int count = 0;
                         for(int cur =0;cur<nodeTemp->keyCount&& count<maxFindNum;cur++){
@@ -373,8 +375,6 @@ bool BPlusTree::findScopeValue(int64_t valMin, int64_t valMax, int colNum, std::
             ans.reserve(maxFindNum+1);
             bool flagInMinNode = true;
             int count = 0;
-            std::cout<<"keyCount min:"<<nodeMin->keyCount<<std::endl;
-            std::cout<<"keyCount max:"<<nodeMax->keyCount<<std::endl;
             while(nodeMin != nodeMax){
                        int nodeKeycount = nodeMin->keyCount;
                         if(flagInMinNode){
@@ -401,7 +401,6 @@ bool BPlusTree::findScopeValue(int64_t valMin, int64_t valMax, int colNum, std::
             }
             // nodeMax/nodeMin->IsLeaf = true
             for(int cur =0;cur<nodeMin->keyCount&& count<maxFindNum;cur++){
-                        std::cout<<"for test count: "<<count<<std::endl;
                         if(nodeMin->infoNodes[cur].val <= valMax){
                                     ans.emplace_back(nodeMin->infoNodes[cur].lineNum);
                                     count++; 
@@ -481,7 +480,7 @@ bool BPlusTree::storeBPlusTree( int colNum){
             return true;
 }
 
-BPlusTreeNode*  BPlusTree::readBPlusNode(int fp, BPlusTreeNode *leftLeavenode){
+BPlusTreeNode*  BPlusTree::readBPlusNode(int fp, BPlusTreeNode *&leftLeavenode){
             BPlusTreeNode* tempNode = getBPlusTreeNode();
              if(fp<0){
                         std::cout<<"Error: Fail to read the node:fail to open the file!"<<std::endl;
@@ -507,12 +506,7 @@ BPlusTreeNode*  BPlusTree::readBPlusNode(int fp, BPlusTreeNode *leftLeavenode){
                                    leftLeavenode = tempNode;
                        }
                        return tempNode;
-           }
-            // std::cout<<"nodeCount: "<<node->keyCount<<std::endl;
-            // std::cout<<"Read Node display "<<node->keyCount<<std::endl;
-            
-            //  displayRecursive(node);
-           
+           }        
  }
 
  bool BPlusTree::readBPlusTree(int colNum){
@@ -546,25 +540,6 @@ BPlusTreeNode*  BPlusTree::readBPlusNode(int fp, BPlusTreeNode *leftLeavenode){
             return true;
  }
 
-bool BPlusTree::BuildBPlussTree(Piece piecesArray[],int lineNum){
-            if(piecesArray == nullptr){
-                        std::cout<<"Error: the pieceArray is empty"<<std::endl;
-                        return false;
-            }
-            for(int i=1; i<=MaxAttributeNumber;i++){
-                        for(int j=0;j<lineNum;j++){
-                                   if(!insertNode(i,piecesArray[j])) {
-                                                std::cout<<"Error: Fail to build BPlusTree!"<<std::endl;
-                                                return false;
-                                   }
-                        }
-                        if(!storeBPlusTree(i)){
-                                    std::cout<<"Error: Fail to store BPlusTree!"<<std::endl;
-                        }
-            }
-            return true;
-}
-
 bool BPlusTree::InitializeBPlussTree(){
             std::cout<<"Start to initialize the tree!"<<std::endl;
             for(int i=1;i<=MaxAttributeNumber;i++){
@@ -582,10 +557,6 @@ bool BPlusTree::UpdateBPlusTree(Piece piece){
                                     std::cout<<"Error: Fail to Update the BPlusTree!"<<std::endl;
                                     return false;
                         }
-                        // if(!storeBPlusTree(i)){
-                        //             std::cout<<"Error: Fail to Update the BPlusTree!"<<std::endl;
-                        //             return false;
-                        // }
             }
             return true;
 }

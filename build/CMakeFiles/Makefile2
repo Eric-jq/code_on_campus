@@ -60,39 +60,39 @@ CMAKE_SOURCE_DIR = /home/zhoujiaqing/projects/projects_on_campus/linux_project/M
 CMAKE_BINARY_DIR = /home/zhoujiaqing/projects/projects_on_campus/linux_project/My_project/build
 
 #=============================================================================
-# Target rules for target CMakeFiles/testSheet.dir
+# Target rules for target CMakeFiles/finalTest.dir
 
 # All Build rule for target.
-CMakeFiles/testSheet.dir/all:
-	$(MAKE) -f CMakeFiles/testSheet.dir/build.make CMakeFiles/testSheet.dir/depend
-	$(MAKE) -f CMakeFiles/testSheet.dir/build.make CMakeFiles/testSheet.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/zhoujiaqing/projects/projects_on_campus/linux_project/My_project/build/CMakeFiles --progress-num=1,2,3,4 "Built target testSheet"
-.PHONY : CMakeFiles/testSheet.dir/all
+CMakeFiles/finalTest.dir/all:
+	$(MAKE) -f CMakeFiles/finalTest.dir/build.make CMakeFiles/finalTest.dir/depend
+	$(MAKE) -f CMakeFiles/finalTest.dir/build.make CMakeFiles/finalTest.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/zhoujiaqing/projects/projects_on_campus/linux_project/My_project/build/CMakeFiles --progress-num=1,2,3,4,5 "Built target finalTest"
+.PHONY : CMakeFiles/finalTest.dir/all
 
 # Include target in all.
-all: CMakeFiles/testSheet.dir/all
+all: CMakeFiles/finalTest.dir/all
 
 .PHONY : all
 
 # Build rule for subdir invocation for target.
-CMakeFiles/testSheet.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/zhoujiaqing/projects/projects_on_campus/linux_project/My_project/build/CMakeFiles 4
-	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/testSheet.dir/all
+CMakeFiles/finalTest.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/zhoujiaqing/projects/projects_on_campus/linux_project/My_project/build/CMakeFiles 5
+	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/finalTest.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/zhoujiaqing/projects/projects_on_campus/linux_project/My_project/build/CMakeFiles 0
-.PHONY : CMakeFiles/testSheet.dir/rule
+.PHONY : CMakeFiles/finalTest.dir/rule
 
 # Convenience name for target.
-testSheet: CMakeFiles/testSheet.dir/rule
+finalTest: CMakeFiles/finalTest.dir/rule
 
-.PHONY : testSheet
-
-# clean rule for target.
-CMakeFiles/testSheet.dir/clean:
-	$(MAKE) -f CMakeFiles/testSheet.dir/build.make CMakeFiles/testSheet.dir/clean
-.PHONY : CMakeFiles/testSheet.dir/clean
+.PHONY : finalTest
 
 # clean rule for target.
-clean: CMakeFiles/testSheet.dir/clean
+CMakeFiles/finalTest.dir/clean:
+	$(MAKE) -f CMakeFiles/finalTest.dir/build.make CMakeFiles/finalTest.dir/clean
+.PHONY : CMakeFiles/finalTest.dir/clean
+
+# clean rule for target.
+clean: CMakeFiles/finalTest.dir/clean
 
 .PHONY : clean
 

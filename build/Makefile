@@ -111,17 +111,44 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named testSheet
+# Target rules for targets named finalTest
 
 # Build rule for target.
-testSheet: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 testSheet
-.PHONY : testSheet
+finalTest: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 finalTest
+.PHONY : finalTest
 
 # fast build rule for target.
-testSheet/fast:
-	$(MAKE) -f CMakeFiles/testSheet.dir/build.make CMakeFiles/testSheet.dir/build
-.PHONY : testSheet/fast
+finalTest/fast:
+	$(MAKE) -f CMakeFiles/finalTest.dir/build.make CMakeFiles/finalTest.dir/build
+.PHONY : finalTest/fast
+
+mainTest.o: mainTest.cpp.o
+
+.PHONY : mainTest.o
+
+# target to build an object file
+mainTest.cpp.o:
+	$(MAKE) -f CMakeFiles/finalTest.dir/build.make CMakeFiles/finalTest.dir/mainTest.cpp.o
+.PHONY : mainTest.cpp.o
+
+mainTest.i: mainTest.cpp.i
+
+.PHONY : mainTest.i
+
+# target to preprocess a source file
+mainTest.cpp.i:
+	$(MAKE) -f CMakeFiles/finalTest.dir/build.make CMakeFiles/finalTest.dir/mainTest.cpp.i
+.PHONY : mainTest.cpp.i
+
+mainTest.s: mainTest.cpp.s
+
+.PHONY : mainTest.s
+
+# target to generate assembly for a file
+mainTest.cpp.s:
+	$(MAKE) -f CMakeFiles/finalTest.dir/build.make CMakeFiles/finalTest.dir/mainTest.cpp.s
+.PHONY : mainTest.cpp.s
 
 src/BPlusTree.o: src/BPlusTree.cpp.o
 
@@ -129,7 +156,7 @@ src/BPlusTree.o: src/BPlusTree.cpp.o
 
 # target to build an object file
 src/BPlusTree.cpp.o:
-	$(MAKE) -f CMakeFiles/testSheet.dir/build.make CMakeFiles/testSheet.dir/src/BPlusTree.cpp.o
+	$(MAKE) -f CMakeFiles/finalTest.dir/build.make CMakeFiles/finalTest.dir/src/BPlusTree.cpp.o
 .PHONY : src/BPlusTree.cpp.o
 
 src/BPlusTree.i: src/BPlusTree.cpp.i
@@ -138,7 +165,7 @@ src/BPlusTree.i: src/BPlusTree.cpp.i
 
 # target to preprocess a source file
 src/BPlusTree.cpp.i:
-	$(MAKE) -f CMakeFiles/testSheet.dir/build.make CMakeFiles/testSheet.dir/src/BPlusTree.cpp.i
+	$(MAKE) -f CMakeFiles/finalTest.dir/build.make CMakeFiles/finalTest.dir/src/BPlusTree.cpp.i
 .PHONY : src/BPlusTree.cpp.i
 
 src/BPlusTree.s: src/BPlusTree.cpp.s
@@ -147,8 +174,35 @@ src/BPlusTree.s: src/BPlusTree.cpp.s
 
 # target to generate assembly for a file
 src/BPlusTree.cpp.s:
-	$(MAKE) -f CMakeFiles/testSheet.dir/build.make CMakeFiles/testSheet.dir/src/BPlusTree.cpp.s
+	$(MAKE) -f CMakeFiles/finalTest.dir/build.make CMakeFiles/finalTest.dir/src/BPlusTree.cpp.s
 .PHONY : src/BPlusTree.cpp.s
+
+src/CLThread.o: src/CLThread.cpp.o
+
+.PHONY : src/CLThread.o
+
+# target to build an object file
+src/CLThread.cpp.o:
+	$(MAKE) -f CMakeFiles/finalTest.dir/build.make CMakeFiles/finalTest.dir/src/CLThread.cpp.o
+.PHONY : src/CLThread.cpp.o
+
+src/CLThread.i: src/CLThread.cpp.i
+
+.PHONY : src/CLThread.i
+
+# target to preprocess a source file
+src/CLThread.cpp.i:
+	$(MAKE) -f CMakeFiles/finalTest.dir/build.make CMakeFiles/finalTest.dir/src/CLThread.cpp.i
+.PHONY : src/CLThread.cpp.i
+
+src/CLThread.s: src/CLThread.cpp.s
+
+.PHONY : src/CLThread.s
+
+# target to generate assembly for a file
+src/CLThread.cpp.s:
+	$(MAKE) -f CMakeFiles/finalTest.dir/build.make CMakeFiles/finalTest.dir/src/CLThread.cpp.s
+.PHONY : src/CLThread.cpp.s
 
 src/Sheet.o: src/Sheet.cpp.o
 
@@ -156,7 +210,7 @@ src/Sheet.o: src/Sheet.cpp.o
 
 # target to build an object file
 src/Sheet.cpp.o:
-	$(MAKE) -f CMakeFiles/testSheet.dir/build.make CMakeFiles/testSheet.dir/src/Sheet.cpp.o
+	$(MAKE) -f CMakeFiles/finalTest.dir/build.make CMakeFiles/finalTest.dir/src/Sheet.cpp.o
 .PHONY : src/Sheet.cpp.o
 
 src/Sheet.i: src/Sheet.cpp.i
@@ -165,7 +219,7 @@ src/Sheet.i: src/Sheet.cpp.i
 
 # target to preprocess a source file
 src/Sheet.cpp.i:
-	$(MAKE) -f CMakeFiles/testSheet.dir/build.make CMakeFiles/testSheet.dir/src/Sheet.cpp.i
+	$(MAKE) -f CMakeFiles/finalTest.dir/build.make CMakeFiles/finalTest.dir/src/Sheet.cpp.i
 .PHONY : src/Sheet.cpp.i
 
 src/Sheet.s: src/Sheet.cpp.s
@@ -174,35 +228,8 @@ src/Sheet.s: src/Sheet.cpp.s
 
 # target to generate assembly for a file
 src/Sheet.cpp.s:
-	$(MAKE) -f CMakeFiles/testSheet.dir/build.make CMakeFiles/testSheet.dir/src/Sheet.cpp.s
+	$(MAKE) -f CMakeFiles/finalTest.dir/build.make CMakeFiles/finalTest.dir/src/Sheet.cpp.s
 .PHONY : src/Sheet.cpp.s
-
-testSheet.o: testSheet.cpp.o
-
-.PHONY : testSheet.o
-
-# target to build an object file
-testSheet.cpp.o:
-	$(MAKE) -f CMakeFiles/testSheet.dir/build.make CMakeFiles/testSheet.dir/testSheet.cpp.o
-.PHONY : testSheet.cpp.o
-
-testSheet.i: testSheet.cpp.i
-
-.PHONY : testSheet.i
-
-# target to preprocess a source file
-testSheet.cpp.i:
-	$(MAKE) -f CMakeFiles/testSheet.dir/build.make CMakeFiles/testSheet.dir/testSheet.cpp.i
-.PHONY : testSheet.cpp.i
-
-testSheet.s: testSheet.cpp.s
-
-.PHONY : testSheet.s
-
-# target to generate assembly for a file
-testSheet.cpp.s:
-	$(MAKE) -f CMakeFiles/testSheet.dir/build.make CMakeFiles/testSheet.dir/testSheet.cpp.s
-.PHONY : testSheet.cpp.s
 
 # Help Target
 help:
@@ -211,17 +238,20 @@ help:
 	@echo "... clean"
 	@echo "... depend"
 	@echo "... rebuild_cache"
-	@echo "... testSheet"
+	@echo "... finalTest"
 	@echo "... edit_cache"
+	@echo "... mainTest.o"
+	@echo "... mainTest.i"
+	@echo "... mainTest.s"
 	@echo "... src/BPlusTree.o"
 	@echo "... src/BPlusTree.i"
 	@echo "... src/BPlusTree.s"
+	@echo "... src/CLThread.o"
+	@echo "... src/CLThread.i"
+	@echo "... src/CLThread.s"
 	@echo "... src/Sheet.o"
 	@echo "... src/Sheet.i"
 	@echo "... src/Sheet.s"
-	@echo "... testSheet.o"
-	@echo "... testSheet.i"
-	@echo "... testSheet.s"
 .PHONY : help
 
 

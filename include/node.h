@@ -13,9 +13,6 @@ typedef struct InfoNode{
 
 typedef struct BPlusTreeNode
 {
-        // InfoNode InfoNodes[BPlusTreeM*2];  // key
-       //std:: vector<std::pair< int64_t, int64_t>> infoNodes;  // infoNodes.first =  val, infoNodes.lineNum = lineNum
-       // array pointers
         InfoNode infoNodes[BPlusTreeM*2+1];
         struct BPlusTreeNode *children[BPlusTreeM*2+2]; 
         bool IsLeaf;

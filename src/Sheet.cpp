@@ -50,19 +50,27 @@ Sheet::Sheet(){
                         }
             }
             srand((unsigned)time(0));  // this is for rand   
-            // if(pthread_mutex_init(mmutexFIndInsertSheet, NULL)!=0){
-            //             std::cout<<"Error: Fail to init mutexFIndInsertSheet!"<<std::endl;
-            //             delete mmutexFIndInsertSheet;
-            //             close(mFp);
-            // }
-}
-
-void Sheet::ShowFirstFewPieces(){
-            std::cout<<"First Few Sheets:"<<std::endl;
-            for(int i =0;i<=3;i++){
-                        DisplayPiece(piecesArray[i]);
+            mmutexFIndInsertSheet = new pthread_mutex_t;
+            if(pthread_mutex_init(mmutexFIndInsertSheet, 0)!=0){
+                        std::cout<<"Error: Fail to init mutexFIndInsertSheet!"<<std::endl;
+                        delete mmutexFIndInsertSheet;
+                        close(mFp);
             }
 }
+
+pthread_mutex_t *Sheet::GetNewMutex(){
+            pthread_mutex_t *tempMutex = new pthread_mutex_t;
+            if (pthread_mutex_init(tempMutex, 0) != 0) {
+                        delete tempMutex;
+                        std::cout<<"Error: Fail to Initialize the Mutex"<<std::endl;
+                        return nullptr;
+            }
+    return tempMutex;
+}
+
+pthread_mutex_t* Sheet::mmutexGetSheet = Sheet::GetNewMutex();
+
+Sheet *Sheet::mSheet = nullptr;
 
 bool Sheet::SetRawSheet(){
             Piece piece;
@@ -105,33 +113,47 @@ Piece Sheet::GetNewPiece(){
             lineNum++;
             return piece;
 }
-Sheet *Sheet::mSheet = nullptr;
+
+
 
 Sheet::~Sheet(){
-            std::cout<<"Start ~Sheet"<<std::endl;
+           // std::cout<<"Start ~Sheet"<<std::endl;
             if(mFp){
                  close(mFp);       
             }
-            std::cout<<"close(mFp)"<<std::endl;
-            std::cout<<"delete[] piecesArray"<<std::endl;
             if(mBplusTree!=nullptr){
                         delete(mBplusTree);
             }
-             std::cout<<"End ~Sheet"<<std::endl;
 }
 
 Sheet *Sheet:: GetSheet(){
+            if (pthread_mutex_lock(mmutexGetSheet) != 0) {
+                        std::cout<<"Error: Fail to lock mmutexGetSheet"<<std::endl;
+                        return nullptr;
+            }
             if(mSheet != nullptr){
+                        std::cout<<"msheet already exist"<<std::endl;
+                        if (pthread_mutex_unlock(mmutexGetSheet) != 0) {
+                                    std::cout<<"Error: Fail to unlock mmutexGetSheet"<<std::endl;
+                                    return nullptr;
+                         }           
                         return mSheet; // to assure there is only one instance
             }
             mSheet = new Sheet();
+            if(mSheet == nullptr){
+                        std::cout<<"Error: Fail to New a Sheet"<<std::endl;
+            }
+            if (pthread_mutex_unlock(mmutexGetSheet) != 0) {
+                        std::cout<<"Error: Fail to unlock mmutexGetSheet"<<std::endl;
+                        return nullptr;
+            }
             return mSheet;
 }
 
 
 void Sheet::DisplayPiece(Piece piece){
-            std::cout<<"LINENUM:"<<lineNum<<std::endl;
-            std::cout<<"ATTRIBUTES:"<<lineNum<<std::endl;
+            std::cout<<"LINENUM:"<<piece.lineNum<<std::endl;
+            std::cout<<"ATTRIBUTES:"<<std::endl;
              for(int i=0;i<MaxAttributeNumber;i++){
                         std::cout<<piece.arrtibute[i]<<" ";
              }
@@ -140,26 +162,36 @@ void Sheet::DisplayPiece(Piece piece){
 
 
 bool Sheet::InsertPiece(){
-            // if (pthread_mutex_lock(m_pMutexForVisitTable) != 0){
-	// 	cout<<"加访问互斥锁失败。"<<endl;
-	// 	return;
-	// }
+            if (pthread_mutex_lock(mmutexFIndInsertSheet) != 0){
+		std::cout<<"Error: Fail to lock mmutexFIndInsertSheet"<<std::endl;
+                        return false;
+	}
             Piece newPiece = GetNewPiece();
             if(!AppendSheet(newPiece)){
                          std::cout<<"Error: fail to insert piece"<<std::endl;
+                        if (pthread_mutex_unlock(mmutexFIndInsertSheet) != 0){
+                                    std::cout<<"Error: Fail to unlock mmutexFIndInsertSheet"<<std::endl;
+	            }
                          return false;
             }
             std::cout<<"******************************************"<<std::endl;
             std::cout<<"HERE IS THE NEW PIECE:"<<std::endl;
             DisplayPiece(newPiece);
             std::cout<<"******************************************"<<std::endl;
+             if (pthread_mutex_unlock(mmutexFIndInsertSheet) != 0){
+		std::cout<<"Error: Fail to unlock mmutexFIndInsertSheet"<<std::endl;
+                        return false;
+	}
             return true;
 }
 
 void Sheet::FindPieces(int64_t targetVal,int colNum){
+            if (pthread_mutex_lock(mmutexFIndInsertSheet) != 0){
+		std::cout<<"Error: Fail to lock mmutexFIndInsertSheet"<<std::endl;
+                        return;
+	}
             std::vector<int64_t> ans;
             mBplusTree->findSingleValue(targetVal,colNum,ans);
-           // std::cout<<"ansSize: "<<ans.size()<<std::endl;
             if(ans.size()==0){
                          std::cout<<"There is no data fitting the requirement!"<<std::endl;
              }
@@ -172,9 +204,17 @@ void Sheet::FindPieces(int64_t targetVal,int colNum){
                                     std::cout<<"******************************************"<<std::endl;
                          }
             }
+             if (pthread_mutex_unlock(mmutexFIndInsertSheet) != 0){
+		std::cout<<"Error: Fail to unlock mmutexFIndInsertSheet"<<std::endl;
+                        return;
+	}
 }
 
 void Sheet::FindPieces(int64_t minVal, int64_t maxVal, int colNum){
+             if (pthread_mutex_lock(mmutexFIndInsertSheet) != 0){
+		std::cout<<"Error: Fail to lock mmutexFIndInsertSheet"<<std::endl;
+                        return;
+	}
              std::vector<int64_t> ans;
             mBplusTree->findScopeValue(minVal,maxVal,colNum,ans);
             if(ans.size()==0){
@@ -184,9 +224,12 @@ void Sheet::FindPieces(int64_t minVal, int64_t maxVal, int colNum){
                         std::cout<<"******************************************"<<std::endl;
                         std::cout<<"HERE ARE THE FINDINGS:"<<std::endl;
                         for(int i=0;i<ans.size();i++){
-                                    std::cout<<ans[i]<<std::endl;
                                     DisplayPiece(piecesArray[ans[i]]);
                         }
                         std::cout<<"******************************************"<<std::endl;
             }
+            if (pthread_mutex_unlock(mmutexFIndInsertSheet) != 0){
+		std::cout<<"Error: Fail to unlock mmutexFIndInsertSheet"<<std::endl;
+                        return;
+	}
 }

@@ -1,26 +1,10 @@
 #pragma once
-#include "CLExecutive.h"
-#include<pthread.h>
-#include<iostream>
-class CLThread:public CLExecutive
-{
-public:
-            CLThread(CLExecutiveFunctionProvider * pExecutiveFunctionProvider)
-            :CLExecutive(pExecutiveFunctionProvider){};
-            ~CLThread();
-            virtual void Run();
-	virtual void WaitForDeath();
-	private:
-		static void *StartFunctionOfThread(void* pContext);
-	private:
-		pthread_t mthreadID;
-};
+#include "CLThread.h"
+#include <pthread.h>
+
 
 CLThread::CLThread(CLExecutiveFunctionProvider * pExecutiveFunctionProvider)
-{
-}
-
-CLThread::~CLThread(){}
+            :CLExecutive(pExecutiveFunctionProvider){};
 
 void CLThread::Run(){
             int r=pthread_create(&mthreadID,0,StartFunctionOfThread,this);

@@ -15,27 +15,28 @@ class Sheet{
             public:
                         Sheet();
                         ~Sheet();
+                       static Sheet * GetSheet();
+                        bool InsertPiece();
+                        void FindPieces(int64_t targetVal,int colNum);
+                        void FindPieces(int64_t minVal, int64_t maxVal, int colNum);
+                        static pthread_mutex_t * GetNewMutex();
+            
+            private:
+                         BPlusTree *mBplusTree;
                         bool SetRawSheet();
                         Piece GetNewPiece(); 
                         bool AppendSheet(Piece piece);
-                        static Sheet * GetSheet();
-                        bool BuildBplusTree(int colNum);
-                       // bool VerifyBPlusTreeFile(int colNum);
-                        bool InsertPiece();
-                        void DisplayPiece(Piece piece);
+                         void DisplayPiece(Piece piece);
                         bool UpdateBPlusTree(int colNum);
-                        void FindPieces(int64_t targetVal,int colNum);
-                        void FindPieces(int64_t minVal, int64_t maxVal, int colNum);
                         void ShowFirstFewPieces();
-                        BPlusTree *mBplusTree;
+
             private:
                         int mFp;
                         Piece piecesArray[maxLineNum];
                         int64_t lineNum;
                         static Sheet *mSheet; // for the sake of consistence in  threads
-                         pthread_mutex_t *mmutexFIndInsertSheet;
+                        pthread_mutex_t *mmutexFIndInsertSheet;
                         static pthread_mutex_t *mmutexGetSheet;
-
 };
 
 

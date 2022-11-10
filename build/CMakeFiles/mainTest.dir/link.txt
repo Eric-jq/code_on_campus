@@ -1,0 +1,1 @@
+/usr/bin/c++  -g  -rdynamic CMakeFiles/mainTest.dir/mainTest.cpp.o  -o mainTest  -L/home/zhoujiaqing/projects/projects_on_campus/linux_project/My_project/include -Wl,-rpath,/home/zhoujiaqing/projects/projects_on_campus/linux_project/My_project/include -lpthread 

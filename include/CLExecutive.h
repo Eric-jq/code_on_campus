@@ -7,7 +7,6 @@ class CLExecutive{
                         {
 			m_pExecutiveFunctionProvider=pExecutiveFunctionProvider;
 		}
-		virtual ~CLExecutive(){}
 		virtual void Run()=0;
 		virtual void WaitForDeath()=0;
 	protected:

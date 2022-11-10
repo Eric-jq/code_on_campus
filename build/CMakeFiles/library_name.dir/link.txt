@@ -1,0 +1,2 @@
+/usr/bin/ar qc liblibrary_name.a  CMakeFiles/library_name.dir/src/Sheet.cpp.o CMakeFiles/library_name.dir/src/CLThread.cpp.o CMakeFiles/library_name.dir/src/BPlusTree.cpp.o
+/usr/bin/ranlib liblibrary_name.a

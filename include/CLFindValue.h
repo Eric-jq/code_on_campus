@@ -1,29 +1,36 @@
 #pragma once
-#include"CLExecutiveFunctionProvider.h"
-#include"Sheet.h"
-#include<stdint.h> 
-class CLFindValue:public CLExecutiveFunctionProvider{
-            public:
-                        CLFindValue(int64_t minVal, int64_t manVal, int colNum):mminVal(minVal),mmanVal(manVal),mcolNum(mcolNum){
+#include "CLExecutiveFunctionProvider.h"
+#include "Sheet.h"
+#include <stdint.h>
+
+class CLFindValue : public CLExecutiveFunctionProvider
+{
+public:
+            // CLFindValue(int64_t minVal, int64_t maxVal, int colNum);
+            // CLFindValue(int64_t minVal, int64_t colNum);
+            CLFindValue(int64_t minVal, int64_t maxVal, int colNum):mminVal(minVal),mmaxVal(maxVal),mcolNum(colNum){
                                     flag = true;
                         };
-                          CLFindValue(int64_t minVal, int64_t  colNum):mminVal(minVal),mcolNum(mcolNum){
+            CLFindValue(int64_t minVal, int64_t  colNum):mminVal(minVal),mcolNum(colNum){
                                     flag = false;
                         };
-                        virtual void RunExecutiveFunction(){
-			Sheet* msheet=Sheet::GetSheet();
-                                    if(flag){
-                                                msheet->FindPieces(mminVal, mmanVal,mcolNum);
-                                    }
-                                    else{
-                                                msheet->FindPieces(mmanVal,mcolNum);
-                                    }
-			
-		}
-                        
-            private:
-                        bool flag;
-                        int64_t mminVal;
-                        int64_t mmanVal;
-                        int  mcolNum;
+            virtual void RunExecutiveFunction()
+            {
+                        Sheet *msheet = Sheet::GetSheet();
+                        std::cout<<"Start to find..."<<std::endl;
+                        if (flag)
+                        {
+                                    msheet->FindPieces(mminVal, mmaxVal, mcolNum);
+                        }
+                        else
+                        {
+                                    msheet->FindPieces(mmaxVal, mcolNum);
+                        }
+            }
+
+private:
+            bool flag;
+            int64_t mminVal;
+            int64_t mmaxVal;
+            int mcolNum;
 };
